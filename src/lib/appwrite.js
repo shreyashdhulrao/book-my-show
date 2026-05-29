@@ -30,16 +30,6 @@ export const createEvent = async (data) => {
 };
 
 
-// 5. UPDATE EVENT (EDIT FORM)
-export const updateEvent = async (id, data) => {
-  return await db.updateDocument(
-    DATABASE_ID,
-    COLLECTION_ID,
-    id,
-    data
-  );
-};
-
 
 // 6. UPLOAD IMAGE
 // export const uploadImage = async (file) => {
@@ -77,5 +67,58 @@ export const uploadImage = async (file) => {
 
 // 7. GET IMAGE URL
 export const getImageUrl = (fileId) => {
-  return storage.getFileView(BUCKET_ID, fileId);
+  return storage.getFileView(BUCKET_ID, fileId, 80 , 80);
+};
+
+// Get Events 
+export const getEvents = async () => {
+  return await db.listDocuments(DATABASE_ID, COLLECTION_ID);
+};
+
+export const getEventById = async (id) =>{
+  try {
+    const response = await db.getDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      id
+    );
+
+    return response;
+  } catch (error) {
+    console.log("Error fetching event:", error);
+    return null;
+  }
+}
+
+export const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+export const deleteImage = async (fileId) => {
+  try {
+    return await storage.deleteFile(BUCKET_ID, fileId);
+  } catch (error) {
+    console.log("Delete image error:", error);
+  }
+};
+
+// 5. UPDATE EVENT (EDIT FORM)
+export const updateEvent = async (documentId, data) => {
+  try {
+    return await db.updateDocument(
+      DATABASE_ID,
+      COLLECTION_ID,
+      documentId,
+      data
+    );
+  } catch (error) {
+    console.log("Update Event Error:", error);
+    throw error;
+  }
 };

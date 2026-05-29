@@ -1,19 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import event_page from '../../assets/images/Event_page.jpg';
 import Editpen from '../../assets/icons/edit_pen.svg?react'
 import Trash from '../../assets/icons/trash.svg?react'
-
+import { getImageUrl } from "../../lib/appwrite";
 import { Link } from "react-router-dom";
 
 
-export default function ImageCard({id, event, description, date, location, image, status }) {
-  console.log(id)
+export default function ImageCard({ id, event, description, date, location, image, status }) {
+  const [loading, setLoading] = useState(true);
+  console.log(image)
   return (
     <div className="w-74 h-74 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 relative group">
       {/* Background Image */}
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-zinc-800">
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-zinc-400 border-t-transparent"></div>
+        </div>
+      )}
+
       <img
-        src={image}
+        src={getImageUrl(image)}
         alt={event}
+        onLoad={() => setLoading(false)}
+        onError={() => setLoading(false)}
+        loading="lazy"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500"
       />
 
@@ -22,15 +32,15 @@ export default function ImageCard({id, event, description, date, location, image
 
       {/* Content on Image */}
       <div className="absolute bottom-1 pt-5 p-3.5 items-center flex flex-col justify-center text-white space-y-1 h-fill bg-black/20 backdrop-blur-xl scale-95 rounded-2xl ">
-        <h2 className="text-lg font-semibold line-clamp-2">
+        <h2 className="text-lg font-semibold line-clamp-2 w-50 truncate text-center ">
           {event}
         </h2>
         <div className={`uppercase ${status === "live"
-      ? "text-green-300 animate-pulse font-semibold"
-      : status === "upcoming"
-      ? "text-blue-400 font-semibold"
-      : "text-zinc-300"
-  }`}>
+          ? "text-green-300 animate-pulse font-semibold"
+          : status === "upcoming"
+            ? "text-blue-400 font-semibold"
+            : "text-zinc-300"
+          }`}>
           {status}
         </div>
 

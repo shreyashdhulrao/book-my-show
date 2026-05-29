@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
-import EventData from "../data/event_data";
-import { useParams } from "react-router-dom";
+import { getEventById, formatDate, getImageUrl, deleteImage, updateEvent, uploadImage } from "../lib/appwrite";
+import { useParams, useNavigate } from "react-router-dom";
+
+export const formatDateForInput = (dateStr) => {
+    if (!dateStr) return "";
+
+    return new Date(dateStr).toISOString().split("T")[0];
+};
 
 export default function EditEvent() {
-
+    const navigate = useNavigate()
     const { id } = useParams();
-
-    const [preview, setPreview] = useState(null);
-
     const [formData, setFormData] = useState({
         name: "",
         organizer: "",
         date: "",
         time: "",
         location: "",
-        end_Date: "",
+        end_date: "",
         registration_deadline: "",
         type: "",
         capacity: "",
@@ -22,60 +25,37 @@ export default function EditEvent() {
         image: null,
         status: "",
     });
+    const [preview, setPreview] = useState(null);
 
-    const formatDateForInput = (dateString) => {
-
-        const date = new Date(dateString);
-
-        const year = date.getFullYear();
-
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-
-        const day = String(date.getDate()).padStart(2, "0");
-
-        return `${year}-${month}-${day}`;
-    };
-
-    const formatTimeForInput = (timeString) => {
-        const [time, modifier] = timeString.split(" ");
-        let [hours, minutes] = time.split(":");
-        if (hours === "12") {
-            hours = "00";
-        }
-
-        if (modifier === "PM") {
-            hours = parseInt(hours, 10) + 12;
-        }
-        return `${String(hours).padStart(2, "0")}:${minutes}`;
-    };
-
-    // Fetch specific event by id
+    // FETCH DATA FROM APPWRITE
     useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const res = await getEventById(id);
 
-        const singleEvent = EventData.find(
-            (item) => item.id === Number(id)
-        );
+                const formatted = {
+                    ...res,
+                    date: formatDateForInput(res.date),
+                    end_date: formatDateForInput(res.end_date),
+                    registration_deadline: formatDateForInput(res.registration_deadline),
+                };
 
-        if (singleEvent) {
+                setFormData(formatted);
 
-            setFormData({
-                ...singleEvent,
-                date: formatDateForInput(singleEvent.date),
-                end_Date: formatDateForInput(singleEvent.end_date),
-                registration_deadline: formatDateForInput(
-                    singleEvent.registration_deadline
-                ),
-                time: formatTimeForInput(singleEvent.time),
-            });
+                // 🔥 IMPORTANT: set preview AFTER data loads
+                if (res.image_id) {
+                    setPreview(getImageUrl(res.image_id));
+                } else {
+                    setPreview(null);
+                }
 
-            if (singleEvent.image) {
-                setPreview(singleEvent.image);
+            } catch (error) {
+                console.log(error);
             }
-        }
+        };
 
+        fetchEvents();
     }, [id]);
-
-
 
     // Handle Change
     const handleChange = (e) => {
@@ -103,31 +83,86 @@ export default function EditEvent() {
         }
     };
 
-
+    useEffect(() => {
+        return () => {
+            if (preview && preview.startsWith("blob:")) {
+                URL.revokeObjectURL(preview);
+            }
+        };
+    }, [preview]);
 
     // Remove Image
-    const removeImage = () => {
-
-        setFormData({
-            ...formData,
-            image: null,
-        });
-
-        setPreview(null);
-    };
-
-
-
-    // Submit Updated Data
-    const handleSubmit = (e) => {
-
+    const removeImage = async (e) => {
         e.preventDefault();
 
-        console.log("Updated Event:", formData);
+        const conf = window.confirm("Are you sure you want to delete this image?");
 
-        alert("Event Updated Successfully!");
+        if (!conf) return;
 
-        // Here you can call API PUT request
+        try {
+            // 👇 only delete if image exists in DB (edit mode case)
+            if (formData.image_id) {
+                await deleteImage(formData.image_id);
+            }
+
+            setFormData((prev) => ({
+                ...prev,
+                image: null,
+                image_id: null,
+            }));
+
+            setPreview(null);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // Submit Updated Data
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            let imageId = formData.image_id;
+
+            // ✅ If user selected new image
+            if (formData.image instanceof File) {
+
+                // Delete old image from Appwrite storage
+                if (formData.image_id) {
+                    await deleteImage(formData.image_id);
+                }
+
+                // Upload new image
+                const uploadedFile = await uploadImage(formData.image);
+
+                // Save new file id
+                imageId = uploadedFile.$id;
+            }
+
+            // ✅ Update event in Appwrite DB
+            await updateEvent(id, {
+                name: formData.name,
+                organizer: formData.organizer,
+                date: formData.date,
+                time: formData.time,
+                location: formData.location,
+                type: formData.type,
+                end_date: formData.end_date,
+                registration_deadline: formData.registration_deadline,
+                capacity: Number(formData.capacity),
+                description: formData.description,
+                status: formData.status,
+                image_id: imageId,
+            });
+
+            alert("Event Updated Successfully!");
+
+            navigate("/manage-events");
+
+        } catch (error) {
+            console.log(error);
+            alert("Failed to update event");
+        }
     };
 
 
@@ -249,8 +284,8 @@ export default function EditEvent() {
 
                             <input
                                 type="date"
-                                name="end_Date"
-                                value={formData.end_Date}
+                                name="end_date"
+                                value={formData.end_date}
                                 onChange={handleChange}
                                 className="w-full border-zinc-300 dark:border-zinc-600 dark:text-white border p-3 focus:outline-none rounded-xl"
                                 required
