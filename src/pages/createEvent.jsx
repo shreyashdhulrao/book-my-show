@@ -1,4 +1,6 @@
 import React, { useState, useRef } from "react";
+import { createEvent, uploadImage } from "../lib/appwrite";
+import { useNavigate } from "react-router-dom";
 
 export default function EventForm() {
   const [formData, setFormData] = useState({
@@ -7,10 +9,15 @@ export default function EventForm() {
     date: "",
     time: "",
     location: "",
+    type: "",
+    end_date: "",
+    capacity: "",
+    registration_deadline: "",
     description: "",
     image: null,
   });
 
+  const navigate = useNavigate();
   const [preview, setPreview] = useState(null);
   const [cropSrc, setCropSrc] = useState(null);
   const cropperRef = useRef(null);
@@ -33,10 +40,57 @@ export default function EventForm() {
     setPreview(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Event Data:", formData);
-    alert("Event submitted successfully!");
+
+    try {
+      let imageId = "";
+
+      // 2. Upload image using Appwrite storage
+      if (formData.image) {
+        const file = await uploadImage(formData.image);
+        imageId = file.$id;
+        console.log("IMAGE OBJECT:", file);
+        console.log("IMAGE ID:", file.$id);
+      }
+
+      // 3. Save event in database
+      await createEvent({
+        name: formData.name,
+        organizer: formData.organizer,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location,
+        type: formData.type,
+        end_date: formData.end_date,
+        capacity: Number(formData.capacity),
+        registration_deadline: formData.registration_deadline,
+        description: formData.description,
+        status: "Upcoming",
+        image_id: imageId,        // storage file ID
+        // image_code: imageCode, // your custom generated code
+      });
+
+      alert("Event created successfully!");
+      setFormData({
+        name: "",
+        organizer: "",
+        date: "",
+        time: "",
+        location: "",
+        type: "",
+        end_date: "",
+        capacity: "",
+        registration_deadline: "",
+        description: "",
+        image: null,
+      })
+      setPreview(null)
+      navigate("/manage-events");
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -46,7 +100,7 @@ export default function EventForm() {
           <div className="grid grid-cols-2 gap-3 w-full mb-3 text-sm">
             {/* Event Name */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm ps-3 text-zinc-600 font-light dark:text-zinc-200"  htmlFor="name" >Event Name</label>
+              <label className="text-sm ps-3 text-zinc-600 font-light dark:text-zinc-200" htmlFor="name" >Event Name</label>
               <input
                 type="text"
                 name="name"
@@ -117,8 +171,8 @@ export default function EventForm() {
               <label className="text-sm ps-3 text-zinc-600 font-light dark:text-zinc-200">End Date</label>
               <input
                 type="date"
-                name="endDate"
-                value={formData.endDate}
+                name="end_date"
+                value={formData.end_date}
                 onChange={handleChange}
                 className="w-full border-zinc-300 dark:border-zinc-600 dark:text-white border p-3 focus:outline-none rounded-xl"
                 required
@@ -130,8 +184,8 @@ export default function EventForm() {
               <label className="text-sm ps-3 text-zinc-600 font-light dark:text-zinc-200">Registration Deadline</label>
               <input
                 type="date"
-                name="registrationDeadline"
-                value={formData.registrationDeadline}
+                name="registration_deadline"
+                value={formData.registration_deadline}
                 onChange={handleChange}
                 className="w-full border-zinc-300 dark:border-zinc-600 dark:text-white border p-3 focus:outline-none rounded-xl"
                 required
@@ -174,6 +228,7 @@ export default function EventForm() {
                 placeholder="Event Description"
                 value={formData.description}
                 onChange={handleChange}
+                required
                 className="w-full border-zinc-300 dark:border-zinc-600 dark:text-white border p-3 focus:outline-none rounded-xl"
                 rows="4"
               />
@@ -189,6 +244,7 @@ export default function EventForm() {
                   name="image"
                   accept="image/*"
                   onChange={handleChange}
+                  required
                   className="w-full h-14 border border-zinc-300 dark:border-zinc-600 dark:text-white px-3 py-2 rounded-xl focus:outline-none"
                 />
               ) : (
