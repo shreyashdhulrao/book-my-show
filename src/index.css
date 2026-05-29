@@ -1,0 +1,12 @@
+@font-face {
+    font-family: sfpro;
+    src: url("../src/assets/fonts/SF-Pro-Text-Light.otf");
+}
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme{
+    --font-sfpro: sfpro;
+}
