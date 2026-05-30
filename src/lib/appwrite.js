@@ -15,8 +15,9 @@ export { ID };
 
 // 3. IDS FROM .env
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const COLLECTION_ID = "events";
 const BUCKET_ID = import.meta.env.VITE_APPWRITE_BUCKET_ID;
+const COLLECTION_ID = "events";
+const REGISTRATION_ID = "registered_users";
 
 
 // 4. CREATE EVENT
@@ -121,4 +122,15 @@ export const updateEvent = async (documentId, data) => {
     console.log("Update Event Error:", error);
     throw error;
   }
+};
+
+
+// Registered Users
+export const createRegisteredUsers = async (data) => {
+  return await db.createDocument(
+    DATABASE_ID,
+    REGISTRATION_ID,
+    ID.unique(),
+    data
+  );
 };

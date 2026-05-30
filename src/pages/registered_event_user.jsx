@@ -4,6 +4,7 @@ import Calendar from '../assets/icons/calendar.svg?react'
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Search from '../assets/icons/search.svg?react'
 import event_data from '../data/event_data'
+import { getEvents, formatDate } from "../lib/appwrite";
 
 
 export default function UserTable() {
@@ -19,6 +20,22 @@ export default function UserTable() {
         );
 
         setFilteredevent_data(result);
+    }, []);
+
+    const [eventData, setEventData] = useState([]);
+
+    // FETCH DATA FROM APPWRITE
+    const fetchEvents = async () => {
+        try {
+            const res = await getEvents();
+            setEventData(res.documents);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchEvents();
     }, []);
 
     return (
@@ -46,22 +63,21 @@ export default function UserTable() {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredevent_data.map((item, index) => (
+                                eventData.map((item, index) => (
                                     <tr key={item.id}
                                         onClick={() => navigate(`/registered-event-users/${encodeURIComponent(item.event)}`)}
                                         className="cursor-pointer border-b border-zinc-400 hover:bg-gray-50 hover:text-zinc-900 transition font-semilight text-zinc-500 text-sm"
                                     >
                                         <td className="p-3 ps-6">{index + 1}</td>
-                                        <td className="p-3 ">{item.event}</td>
-                                        <td className="p-3 text-zinc-600">{item.date}</td>
+                                        <td className="p-3 ">{item.name}</td>
+                                        <td className="p-3 text-zinc-600">{formatDate(item.date)}</td>
                                         <td className="p-3 text-zinc-600 text-center">{item.time}</td>
-                                        <td className={`p-3  text-center font-medium ${
-    item.status === "live"
-      ? "text-green-600 animate-pulse"
-      : item.status === "upcoming"
-      ? "text-blue-600"
-      : "text-zinc-500"
-  }`}>{item.status}</td>
+                                        <td className={`p-3  text-center font-medium ${item.status === "Live"
+                                                ? "text-green-600 animate-pulse"
+                                                : item.status === "Upcoming"
+                                                    ? "text-blue-600"
+                                                    : "text-zinc-500"
+                                            }`}>{item.status}</td>
 
                                     </tr>
                                 ))
