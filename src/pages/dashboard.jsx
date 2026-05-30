@@ -3,15 +3,29 @@ import Card from './components.jsx/card';
 import Users from '../assets/icons/user.svg?react'
 import EventLive from '../assets/icons/Event_live.svg?react'
 import EventUpcoming from '../assets/icons/event_upcoming.svg?react'
-import event_data from '../data/event_data'
+// import event_data from '../data/event_data'
 import data from '../data/user_data'
 import ImageCard from './components.jsx/imageCard';
-
+import { getEvents } from '../lib/appwrite';
 
 const Dashboard = () => {
 
-  const liveEvents = event_data.filter(e => e.status === "live").length;
-  const upcomingEvents = event_data.filter(e => e.status === "upcoming").length;
+
+  const [eventData, setEventData] = useState([]);
+  // FETCH DATA FROM APPWRITE
+  const fetchEvents = async () => {
+    try {
+      const res = await getEvents();
+      setEventData(res.documents);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+  const liveEvents = eventData.filter(e => e.status === "Live").length;
+  const upcomingEvents = eventData.filter(e => e.status === "Upcoming").length;
 
   return (
     <div>

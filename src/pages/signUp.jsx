@@ -1,100 +1,253 @@
 import React, { useState } from 'react'
-import login_page from '../assets/images/login_page.jpg'
+import signup_background from '../assets/images/signup_background.jpg'
 import EyeShow from '../assets/icons/eye_show.svg?react'
 import EyeHide from '../assets/icons/eye_hide.svg?react'
 import { Link } from 'react-router';
 
 const signUp = () => {
-    const [passShow, setpassShow] = useState(false)
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [pass, setPass] = useState("")
+    const [formData, setFormData] = useState({
+        fullName: "",
+        email: "",
+        phone: "",
+        designation: "",
+        password: "",
+        confirmPassword: "",
+    });
 
-    const handleSubmit = (e) =>{
-      e.preventDefault()
-      console.log(name, email, pass)
-    }
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState("");
+    const designations = [
+        "Administrator",
+        "Principal",
+        "Vice Principal",
+        "Teacher",
+        "Event Coordinator",
+        "Office Staff",
+    ];
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (formData.password !== formData.confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        setError("");
+
+        const payload = {
+            fullName: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            designation: formData.designation,
+            password: formData.password,
+        };
+
+        console.log(payload);
+    };
 
     return (
         <div>
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="w-full bg-white overflow-hidden grid grid-cols-1 md:grid-cols-2">
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="w-full grid lg:grid-cols-2 overflow-hidden rounded-3xl shadow-2xl border border-white/20">
 
-                    {/* Left Side - Image */}
-                    <div className="hidden md:block">
+                    {/* Left Image */}
+                    <div className="hidden lg:block relative">
                         <img
-                            src={login_page}
-                            alt="login"
-                            className="h-full w-full object-cover"
+                            src={signup_background}
+                            alt="School"
+                            className="h-full w-full fixed"
                         />
+
+                        <div className="absolute inset-0" />
+
+                        <div className="absolute bottom-10 left-10 text-white">
+                            <h1 className="text-4xl font-bold">
+                                School Event Management
+                            </h1>
+
+                            <p className="mt-2 text-zinc-200">
+                                Create, manage and organize school events.
+                            </p>
+                        </div>
                     </div>
 
-                    {/* Right Side - Form */}
-                    <div className="flex items-center justify-center p-8">
-                        <form className="w-full max-w-sm space-y-5" onSubmit={handleSubmit}>
-                            <h2 className="text-4xl font-medium text-gray-700 mb-4 text-center">
-                                SIGN UP
-                            </h2>
-
+                    {/* Form */}
+                    <div className="bg-white/80 h-[80%] dark:bg-zinc-900/80 backdrop-blur-xl p-6 sm:p-8 md:p-10 flex items-center justify-center">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="w-full max-w-md space-y-5 bg-red-300"
+                        >
                             <div>
-                                <p className="text-sm text-gray-600 mb-1 ml-1">Full Name</p>
+                                <h2 className="text-3xl font-semibold text-zinc-800 dark:text-white">
+                                    Create Account
+                                </h2>
+
+                                <p className="text-zinc-500 mt-1">
+                                    Register a new staff member
+                                </p>
+                            </div>
+
+                            {/* Full Name */}
+                            <div className='flex gap-2'>
+                                <div>
+                                <label className="text-sm text-zinc-600 dark:text-zinc-300">
+                                    Full Name
+                                </label>
+
                                 <input
                                     type="text"
-                                    placeholder="Enter Full Name"
-                                    name='name'
-                                    value={name}
-                                    onChange={(e)=> setName(e.currentTarget.value)}
-                                    className="w-full border border-gray-300 rounded-lg p-2 outline-none ps-3 placeholder:text-zinc-400"/>
+                                    placeholder="John Doe"
+                                    className="mt-1 w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
 
+                            {/* Email */}
                             <div>
-                                <p className="text-sm text-gray-600 mb-1 ml-1">Email Address</p>
+                                <label className="text-sm text-zinc-600 dark:text-zinc-300">
+                                    Email Address
+                                </label>
+
                                 <input
                                     type="email"
-                                    placeholder="Enter Email"
-                                    name='email'
-                                    value={email}
-                                    onChange={(e)=> setEmail(e.currentTarget.value)}
-                                    className="w-full border border-gray-300 rounded-lg p-2 outline-none ps-3 placeholder:text-zinc-400"/>
+                                    placeholder="john@example.com"
+                                    className="mt-1 w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
                             </div>
 
+                            {/* Phone */}
                             <div>
-                                <p className="text-sm text-gray-600 mb-1 ml-1">Password</p>
-                                <div className="flex border border-gray-300 rounded-lg">
+                                <div>
+                                <label className="text-sm text-zinc-600 dark:text-zinc-300">
+                                    Phone Number
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    placeholder="+91 9876543210"
+                                    className="mt-1 w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            {/* Designation */}
+                            <div>
+                                <label className="text-sm text-zinc-600 dark:text-zinc-300">
+                                    Designation
+                                </label>
+
+                                <select
+                                    className="mt-1 w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Select Designation</option>
+
+                                    {designations.map((item) => (
+                                        <option key={item}>
+                                            {item}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            </div>
+
+                            {/* Password */}
+                            <div>
+                                <label className="text-sm text-zinc-600 dark:text-zinc-300">
+                                    Password
+                                </label>
+
+                                <div className="mt-1 flex rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
                                     <input
-                                        type={passShow ? "text" : "password"}
+                                        type={showPassword ? "text" : "password"}
                                         placeholder="Enter Password"
-                                        name='password'
-                                        value={pass}
-                                        onChange={(e)=> setPass(e.currentTarget.value)}
-                                        className="w-full rounded-l-lg p-2 outline-none ps-3 placeholder:text-zinc-400"
+                                        className="w-full bg-white dark:bg-zinc-800 px-4 py-3 outline-none"
                                     />
+
                                     <button
                                         type="button"
-                                        onClick={() => setpassShow(!passShow)}
-                                        className=" px-3 rounded-r-lg"
+                                        onClick={() =>
+                                            setShowPassword(!showPassword)
+                                        }
+                                        className="px-4"
                                     >
-                                        {passShow ? 
-                                        <EyeHide className="text-zinc-800 w-5 h-5" />:    
-                                        <EyeShow className="text-zinc-800 w-5 h-5" />
-                                    }
+                                        {showPassword ? (
+                                            <EyeHide className="w-5 h-5" />
+                                        ) : (
+                                            <EyeShow className="w-5 h-5" />
+                                        )}
                                     </button>
                                 </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
-                            >
-                                Sign Up
-                            </button>
+                            {/* Confirm Password */}
+                            <div>
+                                <label className="text-sm text-zinc-600 dark:text-zinc-300">
+                                    Confirm Password
+                                </label>
 
-                            <div className='w-full flex items-center justify-center flex-col gap-3'>
-                                <div className='flex gap-2 text-end w-full text-medium'>
-                                    <p className=" text-center text-gray-500">Already have an Account? </p>
-                                    <Link to="/login" className='text-md text-blue-500 text-semibold'> Login</Link>
+                                <div className="mt-1 flex rounded-xl border border-zinc-300 dark:border-zinc-700 overflow-hidden">
+                                    <input
+                                        type={
+                                            showConfirmPassword
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        placeholder="Confirm Password"
+                                        className="w-full bg-white dark:bg-zinc-800 px-4 py-3 outline-none"
+                                    />
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowConfirmPassword(
+                                                !showConfirmPassword
+                                            )
+                                        }
+                                        className="px-4"
+                                    >
+                                        {showConfirmPassword ? (
+                                            <EyeHide className="w-5 h-5" />
+                                        ) : (
+                                            <EyeShow className="w-5 h-5" />
+                                        )}
+                                    </button>
                                 </div>
                             </div>
+
+                            {/* Error */}
+                            {error && (
+                                <p className="text-red-500 text-sm">
+                                    {error}
+                                </p>
+                            )}
+
+                            {/* Button */}
+                            <button
+                                type="submit"
+                                className="
+            w-full
+            py-3
+            rounded-xl
+            bg-blue-600
+            hover:bg-blue-700
+            text-white
+            font-medium
+            transition
+          "
+                            >
+                                Create Account
+                            </button>
+
+                            <p className="text-center text-sm text-zinc-500">
+                                Already have an account?
+                                <Link
+                                    to="/login"
+                                    className="ml-2 text-blue-600 font-medium"
+                                >
+                                    Login
+                                </Link>
+                            </p>
                         </form>
                     </div>
                 </div>
