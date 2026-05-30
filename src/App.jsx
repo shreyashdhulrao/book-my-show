@@ -19,7 +19,7 @@ import SchoolManageImage from './pages/school_manage_image'
 import RegisteredEventUser from './pages/registered_event_user'
 import Settings from './pages/settings'
 import EditEvent from "./pages/editEvent";
-
+import "./App.css"
 
 
 

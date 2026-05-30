@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import event_page from '../../assets/images/Event_page.jpg';
 import Editpen from '../../assets/icons/edit_pen.svg?react'
 import Trash from '../../assets/icons/trash.svg?react'
@@ -8,7 +8,10 @@ import { Link } from "react-router-dom";
 
 export default function ImageCard({ id, event, description, date, location, image, status }) {
   const [loading, setLoading] = useState(true);
-  console.log(image)
+  const imageUrl = useMemo(
+      () => getImageUrl(image),
+      [image]
+    );
   return (
     <div className="w-74 h-74 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 relative group">
       {/* Background Image */}
@@ -19,7 +22,7 @@ export default function ImageCard({ id, event, description, date, location, imag
       )}
 
       <img
-        src={getImageUrl(image)}
+        src={imageUrl}
         alt={event}
         onLoad={() => setLoading(false)}
         onError={() => setLoading(false)}

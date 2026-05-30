@@ -17,6 +17,8 @@ const Events = () => {
     }
   };
 
+  
+
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -29,7 +31,7 @@ const Events = () => {
 
           {eventData.map((item, key) => (
             <ImageCard
-            key={key}
+              key={key}
               id={item.$id}
               event={item.name}
               description={item.description}

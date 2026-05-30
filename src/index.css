@@ -1,6 +1,11 @@
 @font-face {
     font-family: sfpro;
-    src: url("../src/assets/fonts/SF-Pro-Text-Light.otf");
+    src: url("../src/assets/fonts/SF-Pro-Display-Light.otf");
+}
+
+@font-face {
+    font-family: sfprodark;
+    src: url("../src/assets/fonts/SF-Pro-Display-Regular.otf");
 }
 
 @import "tailwindcss";
@@ -9,4 +14,9 @@
 
 @theme{
     --font-sfpro: sfpro;
+    --font-sfprodark: sfprodark;
+}
+
+*{
+    letter-spacing: 0.8px;
 }

@@ -68,8 +68,9 @@ export const uploadImage = async (file) => {
 
 // 7. GET IMAGE URL
 export const getImageUrl = (fileId) => {
-  return storage.getFileView(BUCKET_ID, fileId, 80 , 80);
+  return storage.getFileView(BUCKET_ID, fileId, 80 , 80, "Center", 30);
 };
+
 
 // Get Events 
 export const getEvents = async () => {
